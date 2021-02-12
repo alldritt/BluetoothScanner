@@ -16,10 +16,17 @@ struct DeviceListView: View {
     let namesPublisher = NotificationCenter.default
         .publisher(for: CBTDevice.NameChangeNotification)
 
+    let columns = [
+        GridItem(.adaptive(minimum: 300))
+    ]
+
     var body: some View {
-        List(devices) { (device) in
-            DeviceCard(device: device)
+        LazyVGrid(columns: columns, spacing: 10) {
+            ForEach(devices) { device in
+                DeviceCard(device: device)
+            }
         }
+        .padding(.horizontal)
         .onReceive(devicesPublisher) { (output) in
             updateDevices()
         }
@@ -54,7 +61,7 @@ struct ContentView: View {
 
     var body: some View {
         let _ = update
-        
+
         Group {
             switch CBTManager.shared.state {
             case .unknown:
@@ -74,7 +81,13 @@ struct ContentView: View {
 
             case .poweredOn:
                 DeviceListView()
-                
+                    .frame(minWidth: 0,
+                           maxWidth: .infinity,
+                           minHeight: 0,
+                           maxHeight: .infinity,
+                           alignment: .topLeading)
+                    .navigationBarTitle("Bluetooth Devices", displayMode: .inline)
+
             @unknown default:
                 Text("Unknown Bluetooth State")
             }
